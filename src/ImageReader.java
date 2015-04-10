@@ -1,12 +1,13 @@
-
+import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
-import java.awt.*;
+import java.util.Arrays;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
 
-public class ImageReader {
+public class imageReader {
 
   
    public static void main(String[] args) 
@@ -26,6 +27,11 @@ public class ImageReader {
        double[] y = new double[index+1];
        double[] u = new double[index+1];
        double[] v = new double[index+1];
+
+       double[] y2 = new double[index+1];
+       double[] u2 = new double[index+1];
+       double[] v2 = new double[index+1];
+
        
        double[] yNew = new double[index+1];
        double[] uNew = new double[index+1];
@@ -37,7 +43,6 @@ public class ImageReader {
 	
     BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     BufferedImage img2 = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-       
     int[] quantval;
     
     
@@ -104,8 +109,7 @@ public class ImageReader {
 				ind++;
 			}
 		}
-        
-		
+		//System.out.println("While YUV ::: \n");
         for(h=0, ind = 0; h<height; h++){
             for(w=0; w<width; w++){
                 byte a = 0;
@@ -123,88 +127,126 @@ public class ImageReader {
                 u[ind]=u1;
                 v[ind]=v1;
                 
+//System.out.println("Index : "+ind+" Width : "+w+"\n");
                 ind++;
+		
             }
         }
         
-       //System.out.println("Index is : "+index+"\n");
+       
+//y = gaussBlur_1 (y, y2, width, height, 0.9);
+//u = gaussBlur_1 (u, u2, width, height, 0.9);
+//v = gaussBlur_1 (v, v2, width, height, 0.9);
+
+
 		
         for(h = 0, ind = 0; h < height; h++){
 		for(w = 0; w < width; w++){
-	    		if(width%subY == 0){
+	    		if(w%subY == 0){
                 		yNew[ind]=y[ind];
             		}
 			ind++;
         	}
         }
-   
-            for(h = 0, ind = 0; h < height; h++){
-		for(w = 0; w < width; w++){
-	    		if(width%subY != 0){
-            
-                    		for(sub=subY-1;sub>0 && ind<index-1;sub--,ind++){
+
+
+
+	
+//System.out.println("///********************************************************////\n");
+   		ind = 0;
+
+		
+		//System.out.println("subY : "+subY+"\n");
+            for(h = 0; h < height; h++){
+		for(w = 0,ind=352*h; w < width; w++,ind++){
+				if(w%subY != 0){
+            			
+				
+				
+                    		 for(sub=subY-1;sub>0 && ind<index-1 && w<width;sub--,ind++, w++){
                     			int end = ind +sub;
-                    			if(end >= index) end=index-1;
+                    			if(end >= index && w<width) end=index-1;
                         			yNew[ind]=(yNew[ind-1]+yNew[end])/2;
-					ind++;
+				
+		//		 	System.out.println("w : "+w+" ind : "+ind+"\n");	    	
+			
 	                    	}
-                	}
-		ind++;
+				
+                		}
+
+				
+			//System.out.println("Index : "+ind+" Width : "+w+"\n");
+		
+
             	}
+		ind--;
             }
    
+		
 
         for(h = 0, ind = 0; h < height; h++){
 		for(w = 0; w < width; w++){
-	    		if(width%subU == 0){
+	    		if(w%subU == 0){
                 		uNew[ind]=u[ind];
             		}
 			ind++;
         	}
         }
-   
-            for(h = 0, ind = 0; h < height; h++){
-		for(w = 0; w < width; w++){
-	    		if(width%subU != 0){
+   ind =0 ;
+            for(h = 0; h < height; h++){
+		for(w = 0,ind=352*h; w < width; w++,ind++){
+	    		if(w%subU != 0){
             
-                    		for(sub=subU-1;sub>0 && ind<index-1;sub--,ind++){
+                    		for(sub=subU-1;sub>0 && ind<index-1 && w<width;sub--,ind++, w++){
                     			int end = ind +sub;
-                    			if(end >= index) end=index-1;
+                    			if(end >= index && w<width) end=index-1;
                         			uNew[ind]=(uNew[ind-1]+uNew[end])/2;
-					ind++;
 	                    	}
                 	}
-		ind++;
+		
             	}
+		ind--;
             }
         
         
         
         for(h = 0, ind = 0; h < height; h++){
 		for(w = 0; w < width; w++){
-	    		if(width%subV == 0){
+	    		if(w%subV == 0){
                 		vNew[ind]=v[ind];
             		}
 			ind++;
         	}
         }
-   
-            for(h = 0, ind = 0; h < height; h++){
-		for(w = 0; w < width; w++){
-	    		if(width%subV != 0){
+   ind = 0;
+            for(h = 0; h < height; h++){
+		for(w = 0, ind=352*h; w < width; w++,ind++){
+	    		if(w%subV != 0){
             
-                    		for(sub=subV-1;sub>0 && ind<index-1;sub--,ind++){
+                    		for(sub=subV-1;sub>0 && ind<index-1 && w<width;sub--,ind++, w++){
                     			int end = ind +sub;
-                    			if(end >= index) end=index-1;
+                    			if(end >= index && w<width) end=index-1;
                         			vNew[ind]=(vNew[ind-1]+vNew[end])/2;
-					ind++;
 	                    	}
                 	}
-		ind++;
+		
             	}
+		ind--;
             }
         
-        
+
+	if (subY>=352){
+			Arrays.fill(yNew,0.0);
+		}		
+
+        if (subU>=352){
+			Arrays.fill(uNew,0.0);
+		}		
+
+	if (subV>=352){
+			Arrays.fill(vNew,0.0);
+		}		
+
 /**        for(ind=0; ind<index-1;ind++){
             if(ind%subU == 0){
                 uNew[ind]=u[ind];
@@ -365,5 +407,27 @@ public class ImageReader {
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   
 
    }
+
+
+
+	// source channel, target channel, width, height, radius
+public static double[] gaussBlur_1 (double[] scl,double[] tcl,int w,int h,double r) {
+double r1 = r * 2.57;    
+int rs = (int)Math.ceil(r1);     // significant radius
+    for(int i=0; i<h; i++)
+        for(int j=0; j<w; j++) {
+            double val = 0, wsum = 0;
+            for(int iy = i-rs; iy<i+rs+1; iy++)
+                for(int ix = j-rs; ix<j+rs+1; ix++) {
+                    int x = Math.min(w-1, Math.max(0, ix));
+                    int y = Math.min(h-1, Math.max(0, iy));
+                    double dsq = (ix-j)*(ix-j)+(iy-i)*(iy-i);
+                    double wght = Math.exp( -dsq / (2*r*r) ) / (Math.PI*2*r*r);
+                    val += scl[y*w+x] * wght;  wsum += wght;
+                }
+            tcl[i*w+j] = Math.round(val/wsum);            
+        }
+	return tcl;
+}
   
 }
